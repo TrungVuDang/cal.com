@@ -31,20 +31,31 @@ The Immersio Booking Service is a **multi-tenant SaaS platform** built on top of
 
 ### 1.3 Cal.com Reusability Analysis
 
-Based on the codebase analysis, the following Cal.com features can be directly leveraged:
+> ⚠️ **Important**: Using Cal.com **Open Source (AGPLv3)** only. Enterprise Edition (EE) features must be built from scratch.
+
+#### Open Source Features (Can Use)
 
 | Cal.com Feature | Reusability | Customization Needed |
 |----------------|-------------|---------------------|
 | **Event Types** | ✅ 95% | Add workshop-specific fields |
 | **Availability/Schedules** | ✅ 100% | None - use as-is |
-| **Booking System** | ✅ 90% | Add whitelist, Immersio metadata |
-| **Organizations/Teams** | ✅ 80% | Map to Tenant model |
-| **Stripe Payments** | ✅ 85% | Per-tenant Stripe Connect |
-| **Cancellation Rules** | ✅ 100% | Configure 12-hour window |
-| **Webhooks** | ✅ 95% | Add Immersio endpoints |
+| **Basic Booking** | ✅ 90% | Add whitelist, Immersio metadata |
 | **Calendar Sync** | ✅ 100% | Google/Outlook integration |
-| **Notifications** | ✅ 90% | Custom email templates |
+| **Basic Webhooks** | ✅ 95% | Add Immersio endpoints |
+| **Email Notifications** | ✅ 90% | Custom email templates |
 | **Seats/Capacity** | ✅ 100% | Built-in Group Events |
+
+#### Enterprise Features (Must Build from Scratch)
+
+| EE Feature | Build Effort | Description |
+|------------|--------------|-------------|
+| **Organizations/Multi-tenant** | 🔴 High (20 days) | Tenant isolation, subdomain routing |
+| **Stripe Payments** | 🔴 High (27 days) | Payment processing, per-tenant Stripe Connect |
+| **SSO/SAML** | 🔴 Medium (12 days) | JWT validation, Immersio SSO |
+| **Admin Panel** | 🔴 High (24 days) | Super admin, tenant management |
+| **Billing/Subscriptions** | 🔴 Medium (15 days) | Plan management, usage limits |
+
+See [ESTIMATE-DETAILED.md](./ESTIMATE-DETAILED.md) for complete breakdown.
 
 ---
 
@@ -1018,78 +1029,113 @@ webhook_events:
 
 ## 7. Implementation Roadmap
 
-### 7.1 Phase Overview
+> ⚠️ **Single Resource Estimate**: Timeline based on 1 developer working full-time.
+> 
+> See [ESTIMATE-DETAILED.md](./ESTIMATE-DETAILED.md) for feature-by-feature breakdown.
+
+### 7.1 Phase Overview (1 Developer)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    IMPLEMENTATION PHASES                        │
+│              IMPLEMENTATION PHASES (1 Developer)                │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Phase 1: MVP Core (4-6 weeks)                                │
-│   ├── Teacher availability setup                               │
-│   ├── Workshop creation                                        │
-│   ├── Student booking flow                                     │
-│   ├── Basic tenant structure                                   │
-│   └── Email notifications                                      │
+│   Phase 1: MVP Core (68 days / ~14 weeks)                      │
+│   ├── Project setup & foundation (6.5 days)                    │
+│   ├── Multi-tenant architecture (20 days) ← BUILD FROM SCRATCH │
+│   ├── Teacher availability (7 days)                            │
+│   ├── Workshop/Event Type (13 days)                            │
+│   ├── Basic booking flow (7 days)                              │
+│   ├── Whitelist feature (10 days) ← BUILD FROM SCRATCH         │
+│   └── Basic notifications (4.5 days)                           │
 │                                                                 │
-│   Phase 2: Payments & Policies (3-4 weeks)                     │
-│   ├── Per-tenant Stripe Connect                                │
-│   ├── Refund automation (12-hour rule)                         │
-│   ├── Cancellation windows                                     │
-│   ├── Transaction history                                      │
-│   └── Invoice emails                                           │
+│   Phase 2: Payments & Policies (61 days / ~12 weeks)           │
+│   ├── Stripe integration (12 days) ← BUILD FROM SCRATCH        │
+│   ├── Per-tenant Stripe Connect (15 days) ← BUILD FROM SCRATCH │
+│   ├── Refund automation (10 days) ← BUILD FROM SCRATCH         │
+│   ├── Cancellation policies (8 days)                           │
+│   ├── Transaction history (10 days) ← BUILD FROM SCRATCH       │
+│   └── Invoice emails (6 days) ← BUILD FROM SCRATCH             │
 │                                                                 │
-│   Phase 3: Immersio Integration (4-5 weeks)                    │
-│   ├── API client for Immersio                                  │
-│   ├── Course sync (pull)                                       │
-│   ├── Student sync (pull)                                      │
-│   ├── Booking webhooks (push)                                  │
-│   ├── SSO/JWT authentication                                   │
-│   └── Embedded UI support                                      │
+│   Phase 3: Immersio Integration (78 days / ~16 weeks)          │
+│   ├── Immersio API client (14 days) ← BUILD FROM SCRATCH       │
+│   ├── Course sync - pull (12 days) ← BUILD FROM SCRATCH        │
+│   ├── Student sync - pull (10 days) ← BUILD FROM SCRATCH       │
+│   ├── Webhook events - push (12 days) ← BUILD FROM SCRATCH     │
+│   ├── Incoming webhooks (8 days) ← BUILD FROM SCRATCH          │
+│   ├── SSO/JWT integration (12 days) ← BUILD FROM SCRATCH       │
+│   └── Embedded UI support (10 days) ← BUILD FROM SCRATCH       │
 │                                                                 │
-│   Phase 4: White-label & Growth (3-4 weeks)                    │
-│   ├── Subdomain per tenant                                     │
-│   ├── Landing page templates                                   │
-│   ├── Template customization UI                                │
-│   ├── Branding options                                         │
-│   └── Admin panel for Super Admin                              │
+│   Phase 4: White-label & Admin (85 days / ~17 weeks)           │
+│   ├── Landing page templates (25 days) ← BUILD FROM SCRATCH    │
+│   ├── Template customization UI (13 days) ← BUILD FROM SCRATCH │
+│   ├── Subdomain routing (8 days) ← BUILD FROM SCRATCH          │
+│   ├── Super Admin panel (24 days) ← BUILD FROM SCRATCH         │
+│   └── Tenant subscriptions (15 days) ← BUILD FROM SCRATCH      │
 │                                                                 │
-│   Total Estimated: 14-19 weeks (3.5-4.5 months)               │
+│   Base Total: 292 days (~59 weeks / ~14 months)                │
+│   With 20% Buffer: 351 days (~71 weeks / ~17 months)           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│              TIMELINE OPTIONS BY TEAM SIZE                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   1 Developer:  ~14 months (with buffer: ~17 months)           │
+│   2 Developers: ~8 months                                       │
+│   3 Developers: ~5-6 months                                     │
+│   4 Devs + Lead: ~4 months                                      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 7.2 Detailed Sprint Plan
+### 7.2 Detailed Task Breakdown (Days per 1 Developer)
 
-#### Phase 1: MVP Core (Weeks 1-6)
+#### Phase 1: MVP Core (68 days)
 
-| Week | Sprint | Tasks | Deliverables |
-|------|--------|-------|--------------|
-| 1-2 | Setup & Foundation | - Fork Cal.com<br>- Setup dev environment<br>- Database extensions<br>- Basic tenant model | Dev environment, schema migrations |
-| 3-4 | Core Booking | - Teacher availability UI<br>- Workshop EventType extension<br>- Booking flow adaptation<br>- Whitelist implementation | Working booking flow |
-| 5-6 | Notifications & Polish | - Email templates<br>- Booking confirmation<br>- Calendar ICS<br>- Basic admin UI | MVP release candidate |
+| Task Group | Days | Build Type | Details |
+|------------|------|------------|---------|
+| Project Setup | 6.5 | Leverage | Fork repo, env setup, schema extensions |
+| Multi-tenant Architecture | 20 | **Build** | Tenant model, isolation, subdomain routing |
+| Teacher Availability | 7 | Leverage/Extend | Use Cal.com Schedule, add custom fields |
+| Workshop/Event Type | 13 | Extend | Custom metadata, creation form, listing |
+| Basic Booking Flow | 7 | Leverage/Extend | Booking page, confirmation, ICS |
+| Whitelist Feature | 10 | **Build** | Whitelist model, validation, bulk upload |
+| Notifications | 4.5 | Leverage | Email templates, reminders |
 
-#### Phase 2: Payments (Weeks 7-10)
+#### Phase 2: Payments (61 days)
 
-| Week | Sprint | Tasks | Deliverables |
-|------|--------|-------|--------------|
-| 7-8 | Stripe Connect | - Tenant Stripe setup UI<br>- Payment routing<br>- Credential storage | Per-tenant payments |
-| 9-10 | Policies & History | - Refund automation<br>- Cancellation rules<br>- Transaction history<br>- Invoice emails | Complete payment system |
+| Task Group | Days | Build Type | Details |
+|------------|------|------------|---------|
+| Stripe Integration | 12 | **Build** | SDK, payment intents, webhooks |
+| Per-tenant Stripe Connect | 15 | **Build** | OAuth flow, credential storage, routing |
+| Refund Automation | 10 | **Build** | Policy config, window calc, Stripe refund |
+| Cancellation Policies | 8 | Extend/Build | Config, history, audit trail |
+| Transaction History | 10 | **Build** | Listing, dashboard, export |
+| Invoice Emails | 6 | **Build** | Templates, generation, sending |
 
-#### Phase 3: Immersio Integration (Weeks 11-15)
+#### Phase 3: Immersio Integration (78 days)
 
-| Week | Sprint | Tasks | Deliverables |
-|------|--------|-------|--------------|
-| 11-12 | Pull Integration | - Immersio API client<br>- Course sync service<br>- Student sync service | Bi-directional sync (pull) |
-| 13-14 | Push Integration | - Webhook configuration<br>- Booking event push<br>- Payment event push | Bi-directional sync (push) |
-| 15 | Auth & Embed | - JWT SSO middleware<br>- Embedded booking UI<br>- Deep linking | Full Immersio integration |
+| Task Group | Days | Build Type | Details |
+|------------|------|------------|---------|
+| Immersio API Client | 14 | **Build** | HTTP client, auth, endpoints |
+| Course Sync (Pull) | 12 | **Build** | Sync service, mapping, incremental |
+| Student Sync (Pull) | 10 | **Build** | Per-course sync, whitelist update |
+| Webhook Events (Push) | 12 | **Build** | Config, events, retry logic |
+| Incoming Webhooks | 8 | **Build** | Endpoints, signature verification |
+| SSO/JWT Integration | 12 | **Build** | JWT validation, user provisioning |
+| Embedded UI | 10 | **Build** | iframe, widget, cross-origin |
 
-#### Phase 4: White-label (Weeks 16-19)
+#### Phase 4: White-label & Admin (85 days)
 
-| Week | Sprint | Tasks | Deliverables |
-|------|--------|-------|--------------|
-| 16-17 | Landing Pages | - Template system<br>- 5 template designs<br>- Template editor UI | Landing page system |
-| 18-19 | Admin & Polish | - Super Admin panel<br>- Tenant management<br>- Analytics dashboard<br>- Final QA | Production release |
+| Task Group | Days | Build Type | Details |
+|------------|------|------------|---------|
+| Landing Page Templates | 25 | **Build** | 5 templates, data fetching |
+| Template Customization UI | 13 | **Build** | Settings form, preview, publish |
+| Subdomain Routing | 8 | **Build** | Middleware, tenant resolution |
+| Super Admin Panel | 24 | **Build** | Tenant CRUD, approval, analytics |
+| Tenant Subscriptions | 15 | **Build** | Plans, limits, billing |
 
 ### 7.3 Dependencies & Critical Path
 
@@ -1118,38 +1164,54 @@ webhook_events:
 
 ## 8. Cost Estimation
 
-### 8.1 Development Cost Breakdown
+> ⚠️ **Updated**: Estimates based on **single developer** and building **EE features from scratch**.
+> 
+> See [ESTIMATE-DETAILED.md](./ESTIMATE-DETAILED.md) for complete feature-by-feature breakdown.
 
-#### Team Composition
-| Role | Count | Rate (USD/hr) | Duration |
-|------|-------|---------------|----------|
-| Tech Lead / Architect | 1 | $80-120 | Full project |
-| Senior Full-Stack Developer | 2 | $60-90 | Full project |
-| Frontend Developer | 1 | $50-70 | Phase 1, 4 |
-| QA Engineer | 1 | $40-60 | Phase 2-4 |
-| DevOps Engineer | 0.5 | $70-100 | Setup + Phase 4 |
+### 8.1 Single Resource Estimate (1 Developer)
 
 #### Phase-by-Phase Estimates
 
-| Phase | Duration | Effort (person-weeks) | Cost Range (USD) |
-|-------|----------|----------------------|------------------|
-| **Phase 1: MVP Core** | 6 weeks | 24 | $38,400 - $57,600 |
-| **Phase 2: Payments** | 4 weeks | 14 | $22,400 - $33,600 |
-| **Phase 3: Immersio Integration** | 5 weeks | 18 | $28,800 - $43,200 |
-| **Phase 4: White-label** | 4 weeks | 16 | $25,600 - $38,400 |
-| **Subtotal Development** | 19 weeks | 72 | **$115,200 - $172,800** |
+| Phase | Days | Weeks | Hours | Cost Range (USD) @ $60-90/hr |
+|-------|------|-------|-------|------------------------------|
+| **Phase 1: MVP Core** | 68 (+20%) = 82 | 17 | 656 | $39,360 - $59,040 |
+| **Phase 2: Payments** | 61 (+20%) = 73 | 15 | 584 | $35,040 - $52,560 |
+| **Phase 3: Immersio Integration** | 78 (+20%) = 94 | 19 | 752 | $45,120 - $67,680 |
+| **Phase 4: White-label** | 85 (+20%) = 102 | 20 | 816 | $48,960 - $73,440 |
+| **Subtotal Development** | **351 days** | **71 weeks** | **2,808** | **$168,480 - $252,720** |
+
+*Note: +20% contingency buffer included*
 
 #### Additional Costs
 
 | Item | Cost Range (USD) |
 |------|-----------------|
-| Project Management (15%) | $17,280 - $25,920 |
-| Code Review & QA | $10,000 - $15,000 |
+| Project Management (10%) | $16,848 - $25,272 |
+| QA/Testing (15%) | $25,272 - $37,908 |
 | Documentation | $5,000 - $8,000 |
-| Contingency (10%) | $11,520 - $17,280 |
-| **Total Project Cost** | **$159,000 - $239,000** |
+| **Total Project Cost (1 Dev)** | **$215,600 - $323,900** |
 
-### 8.2 Infrastructure Cost (Monthly)
+### 8.2 Multi-Resource Options
+
+| Team Size | Duration | Parallel Work | Total Cost |
+|-----------|----------|---------------|------------|
+| 1 Developer | ~14 months | None | $215,600 - $323,900 |
+| 2 Developers | ~8 months | 50% overlap | $180,000 - $270,000 |
+| 3 Developers | ~5-6 months | Full parallel | $200,000 - $300,000 |
+| 4 Devs + Lead | ~4 months | Full parallel | $220,000 - $330,000 |
+
+### 8.3 Effort Breakdown by Type
+
+| Category | Days | % of Total |
+|----------|------|------------|
+| **Leverage Cal.com (Low Effort)** | 10.5 | 4% |
+| **Extend Cal.com (Medium Effort)** | 28 | 10% |
+| **Build from Scratch (High Effort)** | 250 | 86% |
+| **Total** | **288.5** | 100% |
+
+*Most effort is on EE-equivalent features (multi-tenant, payments, SSO, admin)*
+
+### 8.4 Infrastructure Cost (Monthly)
 
 | Component | Service | Monthly Cost |
 |-----------|---------|--------------|
@@ -1161,49 +1223,53 @@ webhook_events:
 | Email Service | SendGrid / AWS SES | $30 - $80 |
 | **Total Monthly Infra** | | **$380 - $930** |
 
-### 8.3 Cal.com License Consideration
+### 8.5 Cal.com License - Open Source Only
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                  CAL.COM LICENSING                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Cal.com uses "Open Core" model:                              │
+│   USING: AGPLv3 Open Source (FREE)                             │
 │                                                                 │
-│   AGPLv3 (Free):                                               │
-│   • Core scheduling                                            │
-│   • Basic booking                                              │
-│   • Calendar integrations                                      │
-│   • Webhooks                                                   │
+│   What we get for free:                                        │
+│   ✅ Core scheduling engine                                    │
+│   ✅ Basic booking flow                                        │
+│   ✅ Calendar integrations (Google, Outlook)                   │
+│   ✅ Basic webhooks                                            │
+│   ✅ Email notifications                                       │
+│   ✅ Event types & availability                                │
 │                                                                 │
-│   Enterprise License (Paid - Contact Sales):                   │
-│   • Organizations (multi-tenant basis)                         │
-│   • Admin Panel                                                │
-│   • SSO/SAML                                                   │
-│   • Payments module                                            │
-│   • Advanced analytics                                         │
+│   What we must BUILD (EE features):                            │
+│   🔴 Organizations (multi-tenant) → 20 days                    │
+│   🔴 Stripe Payments → 27 days                                 │
+│   🔴 SSO/SAML → 12 days                                        │
+│   🔴 Admin Panel → 24 days                                     │
+│   🔴 Billing/Subscriptions → 15 days                           │
 │                                                                 │
-│   Recommendation:                                               │
-│   Contact Cal.com for enterprise pricing as Organizations      │
-│   and Payments are EE features required for this project.      │
-│                                                                 │
-│   Estimated: $500 - $2,000/month depending on volume           │
+│   License cost: $0                                             │
+│   Development cost for EE features: ~98 days                   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 8.4 Cost Savings from Cal.com Base
+### 8.6 Cost Comparison: Build All vs Use Cal.com Open Source
 
-| Feature | Build from Scratch | With Cal.com | Savings |
-|---------|-------------------|--------------|---------|
-| Scheduling Engine | $80,000 | $0 | $80,000 |
-| Calendar Sync | $30,000 | $0 | $30,000 |
-| Booking System | $50,000 | $15,000 | $35,000 |
-| Payment Integration | $25,000 | $8,000 | $17,000 |
-| Notifications | $15,000 | $5,000 | $10,000 |
-| **Total Savings** | | | **~$172,000** |
+| Feature | Build from Scratch | With Cal.com OSS | Savings |
+|---------|-------------------|------------------|---------|
+| Scheduling Engine | 40 days | 0 days | 40 days |
+| Calendar Sync | 20 days | 0 days | 20 days |
+| Basic Booking | 25 days | 2 days | 23 days |
+| Event Types | 15 days | 2 days | 13 days |
+| Email Notifications | 10 days | 2 days | 8 days |
+| UI Components | 30 days | 5 days | 25 days |
+| **Total Saved** | | | **~129 days** |
 
-**Effective Cost Reduction: ~65%** (Meeting the 60-70% target)
+**Without Cal.com**: 288 + 129 = **417 days** (~20 months)  
+**With Cal.com OSS**: **288 days** (~14 months)  
+**Savings**: ~31% time reduction
+
+*Note: Original 60-70% estimate assumed using EE features*
 
 ---
 
